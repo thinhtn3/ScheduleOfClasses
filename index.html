@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule of Classes</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@700&family=Playfair+Display:wght@500&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:wght@100;300;400;500;700;900&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="outerWrap">
+
+        <div class="innerWrap1">
+            <section id="inputForm">
+                <h2>Search by Course</h2>
+                <form action="">
+                    <div id="forms">
+                        <label for="department"></label>
+                        <select name="department" id="department">
+                            <option value="" selected disabled>--Choose Department (Ex. ICS)--</option>
+                        </select>
+
+                        <label for="courseNumber"></label>
+                        <input type="text" name="courseNumber" id="courseNumber" placeholder="--Enter Course Number--">
+
+                        <label for="quarter"></label>
+                        <select name="quarter" id="quarter">
+                            <option value="" disabled>--Choose Quarter (Ex. Winter 2023)--</option>
+                            <option value="2023 24 Fall">Fall 2023</option>
+                            <option value="2024 24 Winter" selected>Winter 2024</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button id="submitSearch" type="submit">Submit</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="displayCourse">
+
+            </section>
+
+        </div>
+
+        <div class="innerWrap2">
+            <img src="assets/petr.png" alt="">
+            <img src="assets/petr2.jpg" alt="">
+        </div>
+
+        <script src="request.js"></script>
+        <script src="scripts.js"></script>
+    </div>
+</body>
+
+</html>
