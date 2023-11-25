@@ -3,7 +3,12 @@ let courseNumberInput = document.querySelector('#courseNumber');
 let termsDropDown = document.querySelector('#quarter');
 const submitSearch = document.querySelector('#submitSearch');
 let displayCourse = document.querySelector('#displayCourse');
-let i = 0;
+let resetButton = document.querySelector('#resetButton');
+
+resetButton.addEventListener('click' , (e) => {
+    e.preventDefault();
+    displayCourse.innerHTML = ''
+})
 
 let duplicate = [];
 
@@ -38,9 +43,7 @@ submitSearch.addEventListener('click', (e) => {
         department = 'CRM%2FLAW';
     }
 
-
-    console.log(department)
-    if (course === '') {
+    if (!course) {
         fetch(`https://api.peterportal.org/rest/v0/schedule/soc?term=${term}&department=${department}&courseNumber=${course}`)
             .then(response => response.json())
             .then(newData => {
@@ -52,6 +55,14 @@ submitSearch.addEventListener('click', (e) => {
                         department = 'I&C SCI';
                     } else if (department === 'CRM%2FLAW') {
                         department = 'CRM/LAW';
+                    }
+
+                    let PNP = `false`
+                    if ((classes.courseNumber) === '22A' || (classes.courseNumber) === '139W' || (classes.courseNumber) === '200' || (classes.courseNumber) === '201' || (classes.courseNumber) === '202' || (classes.courseNumber) === '210' || (classes.courseNumber) === '211' || (classes.courseNumber) === '212') {
+                        PNP = `true`;
+                        console.log(classes.courseNumber)
+                    } else {
+                        PNP = `false`;
                     }
 
                     span.innerText = `${department} ${classes.courseNumber}`;
@@ -87,6 +98,9 @@ submitSearch.addEventListener('click', (e) => {
                     const enrollmentStatus = document.createElement('th');
                     enrollmentStatus.colSpan = 4;
                     enrollmentStatus.innerText = 'Enrollment'
+                    const gpaAverage = document.createElement('th');
+                    gpaAverage.rowSpan = 2;
+                    gpaAverage.innerText = 'GPA Average'
 
                     const enrollmentStatusHeader1 = document.createElement('th');
                     enrollmentStatusHeader1.innerText = 'Enrolled';
@@ -115,11 +129,10 @@ submitSearch.addEventListener('click', (e) => {
                     tr1.append(time);
                     tr1.append(bldg);
                     tr1.append(enrollmentStatus)
+                    tr1.append(gpaAverage)
 
                     courseDiv.append(tr2)
 
-
-                    console.log(classes.courseNumber)
                     for (let i = 0; i < classes.sections.length; i++) {
                         let newTr = document.createElement('tr')
 
@@ -178,12 +191,53 @@ submitSearch.addEventListener('click', (e) => {
                             courseWaitlist.innerText = 'N/A'
                         }
                         newTr.append(courseWaitlist)
-                        console.log(courseWaitlist.innerText)
 
                         courseStatus = document.createElement('td');
                         courseStatus.innerText = classes.sections[i].status;
                         newTr.append(courseStatus)
 
+                        if (department === 'I&C SCI') {
+                            department = 'I%26C+SCI';
+                        } else if (department === 'CRM/LAW') {
+                            department = 'CRM%2FLAW';
+                        }
+
+                        fetch(`https://api.peterportal.org/rest/v0/grades/raw?instructor=${classes.sections[i].instructors[0]}&department=${department}&number=${classes.courseNumber}&excludePNP=${PNP}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.length > 0) {
+                                    console.log(`${department} ${classes.courseNumber} ${classes.sections[i].instructors[0]}`)
+                                    let sumGPA = 0;
+                                    let quarterTaught = 0;
+                                    let avgGPA = 0;
+                                    for (let i = 0; i < data.length; i++) {
+                                        sumGPA += data[i].averageGPA;
+                                        quarterTaught += 1;
+                                    }
+                                    avgGPA = sumGPA / quarterTaught;
+
+                                    if (avgGPA === 0) {
+                                        courseGPA = document.createElement('td')
+                                        courseGPA.innerText = `P/NP`;
+                                        newTr.append(courseGPA)
+                                    } else if (avgGPA > 0) {
+                                        courseGPA = document.createElement('td')
+                                        courseGPA.innerText = (sumGPA / quarterTaught).toFixed(3);
+                                        newTr.append(courseGPA)
+                                    }
+                                } else {
+                                    courseGPA = document.createElement('td')
+                                    courseGPA.innerText = `n/a`;
+                                    newTr.append(courseGPA)
+                                }
+                            })
+                            .catch(error => {
+                                // Handle the error here
+                                console.error(error);
+                                courseGPA = document.createElement('td')
+                                courseGPA.innerText = `Error fetching data`;
+                                newTr.append(courseGPA);
+                            });
 
 
                         // console.log(classes.sections[i].sectionCode)
@@ -250,6 +304,9 @@ submitSearch.addEventListener('click', (e) => {
                         enrollmentStatusHeader3.innerText = 'Waitlist';
                         const enrollmentStatusHeader4 = document.createElement('th');
                         enrollmentStatusHeader4.innerText = 'Status';
+                        const gpaAverage = document.createElement('th');
+                        gpaAverage.rowSpan = 2;
+                        gpaAverage.innerText = 'GPA Average'
 
                         const tr2 = document.createElement('tr');
 
@@ -269,6 +326,7 @@ submitSearch.addEventListener('click', (e) => {
                         tr1.append(time);
                         tr1.append(bldg);
                         tr1.append(enrollmentStatus)
+                        tr1.append(gpaAverage)
 
                         courseDiv.append(tr2)
 
@@ -333,7 +391,50 @@ submitSearch.addEventListener('click', (e) => {
                             courseStatus.innerText = classes.sections[i].status;
                             newTr.append(courseStatus)
 
-                            // console.log(classes.sections[i].sectionCode)
+                            if (department === 'I&C SCI') {
+                                department = 'I%26C+SCI';
+                            } else if (department === 'CRM/LAW') {
+                                department = 'CRM%2FLAW';
+                            }
+
+
+                            fetch(`https://api.peterportal.org/rest/v0/grades/raw?instructor=${classes.sections[i].instructors[0]}&department=${department}&number=${course}&excludePNP=false`)
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.length > 0) {
+                                        let sumGPA = 0;
+                                        let quarterTaught = 0;
+                                        let avgGPA = 0;
+                                        for (let i = 0; i < data.length; i++) {
+                                            sumGPA += data[i].averageGPA;
+                                            quarterTaught += 1;
+                                        }
+                                        avgGPA = sumGPA / quarterTaught;
+
+                                        if (avgGPA === 0) {
+                                            courseGPA = document.createElement('td')
+                                            courseGPA.innerText = `P/NP`;
+                                            newTr.append(courseGPA)
+                                        } else if (avgGPA > 0) {
+                                            courseGPA = document.createElement('td')
+                                            courseGPA.innerText = (sumGPA / quarterTaught).toFixed(3);
+                                            newTr.append(courseGPA)
+                                        }
+                                    } else {
+                                        courseGPA = document.createElement('td')
+                                        courseGPA.innerText = `n/a`;
+                                        newTr.append(courseGPA)
+                                    }
+                                })
+                                .catch(error => {
+                                    // Handle the error here
+                                    console.error(error);
+                                    courseGPA = document.createElement('td')
+                                    courseGPA.innerText = `Error fetching data`;
+                                    newTr.append(courseGPA);
+                                });
+
+
                             courseDiv.append(newTr)
                         }
                         displayCourse.append(courseDiv)
